@@ -457,6 +457,8 @@ abstract class BaseClassGenerator
 				$outArr .= ' = ' . $this->removeNewLines(
 					var_export($param['default'], true)
 				);
+			} else if ($param['typehint']) {
+				$outArr .= ' = null';
 			}
 			$out[] = $outArr;
 		}
