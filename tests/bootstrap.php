@@ -6,6 +6,7 @@ define('LIBS_DIR', WWW_DIR . '/../libs');
 define('DATA_DIR', WWW_DIR . '/../data');
 
 require APP_DIR . '/bootstrap.php';
+require WWW_DIR . '/jiriknesl-mockista-f34f2a183cd0/bootstrap.php';
 
 require WWW_DIR . '/UnitTestCase.php';
 require WWW_DIR . '/IntegrationTestCase.php';

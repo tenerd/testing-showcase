@@ -14,13 +14,9 @@ class ArticleRepositoryCachedTest extends UnitTestCase
 
 	protected function setUp()
 	{
-		$this->repository = $this->getMockBuilder('ArticleRepository')
-			->disableOriginalConstructor()
-			->getMock();
+		$this->repository = Mockista\mock('ArticleRepository');
 
-		$this->cache = $this->getMockBuilder('Nette\Caching\Cache')
-			->disableOriginalConstructor()
-			->getMock();
+		$this->cache = Mockista\mock('Nette\Caching\Cache');
 
 		$this->cachedRepository = new ArticleRepositoryCached($this->repository, $this->cache);
 	}
@@ -28,14 +24,12 @@ class ArticleRepositoryCachedTest extends UnitTestCase
 	public function testFindById()
 	{
 		$article = $this->createArticle();
-		$this->repository->expects($this->once())
-			->method('findById')
-			->with(1)
-			->will($this->returnValue($article));
+		$this->repository->findById(1)->once()->AndReturn($article);
+		$this->repository->freeze();
 
-		$this->cache->expects($this->once())
-			->method('save')
-			->with('article-1', $article);
+		$this->cache->offsetExists('article-1')->once();
+		$this->cache->save('article-1', $article)->once();
+		$this->cache->freeze();
 
 		$article = $this->cachedRepository->findById(1);
 		$this->assertEquals($article, $article);
@@ -45,16 +39,12 @@ class ArticleRepositoryCachedTest extends UnitTestCase
 	{
 		$article = $this->createArticle();
 
-		$this->cache->expects($this->once())
-			->method('offsetExists')
-			->with('article-1')
-			->will($this->returnValue(TRUE));
-		$this->cache->expects($this->once())
-			->method('offsetGet')
-			->with('article-1')
-			->will($this->returnValue($article));
+		$this->cache->offsetExists('article-1')->AndReturn(TRUE);
+		$this->cache->offsetGet('article-1')->AndReturn($article);
+		$this->cache->freeze();
 
-		$this->repository->expects($this->never())->method('findById');
+		$this->repository->findById()->never();
+		$this->repository->freeze();
 
 		$this->assertEquals($article, $this->cachedRepository->findById(1));
 	}
@@ -63,13 +53,11 @@ class ArticleRepositoryCachedTest extends UnitTestCase
 	{
 		$article = $this->createArticle();
 
-		$this->repository->expects($this->once())
-			->method('persist')
-			->with($article);
+		$this->repository->persist($article)->once();
+		$this->repository->freeze();
 
-		$this->cache->expects($this->once())
-			->method('save')
-			->with('article-1', $article);
+		$this->cache->save('article-1', $article)->once();
+		$this->cache->freeze();
 
 		$this->assertInstanceOf('ArticleRepository', $this->cachedRepository->persist($article));
 	}

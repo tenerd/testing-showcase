@@ -11,9 +11,7 @@ class ArticleFacadeTest extends UnitTestCase
 
 	protected function setUp()
 	{
-		$this->repository = $this->getMockBuilder('ArticleRepository')
-			->disableOriginalConstructor()
-			->getMock();
+                $this->repository = Mockista\mock('ArticleRepository');
 
 		$this->facade = new ArticleFacade($this->repository);
 	}
@@ -21,22 +19,20 @@ class ArticleFacadeTest extends UnitTestCase
 	public function testGetLastArticles()
 	{
 		$article = $this->createArticle();
-		$this->repository->expects($this->once())
-			->method('findAll')
-			->will($this->returnValue(array($article)));
+		 $this->repository->findAll()->AndReturn(array($article));
+		$this->repository->freeze();
 
-		$articles = $this->facade->getLastArticles();
+		$articles = $this->facade->getLastArticles();    
 		$this->assertCount(1, $articles);
 		$this->assertEquals($article, $articles[0]);
+		$this->repository->assertExpectations();
 	}
 
 	public function testGetArticleById()
 	{
 		$article = $this->createArticle();
-		$this->repository->expects($this->once())
-			->method('findById')
-			->with(1)
-			->will($this->returnValue($article));
+		$this->repository->findById(1)->once()->AndReturn($article);
+		$this->repository->freeze();
 
 		$this->assertEquals($article, $this->facade->getArticleById(1));
 	}
@@ -45,9 +41,12 @@ class ArticleFacadeTest extends UnitTestCase
 	{
 		$article = $this->createArticle();
 
-		$this->repository->expects($this->once())
-			->method('persist')
-			->with($article);
+		$article2 = clone $article;
+		$article2->setSeen($article2->getSeen() + 1);
+		//jelikoz predane parametry se v mockistovi hashuji, tak nastane problem, 
+		//pokud se dany objekt mezi prirazenim jako parametrem mockovane metody a samotnym zavolanim metody                
+		$this->repository->persist($article2);
+		$this->repository->freeze();
 
 		$this->facade->increaseSeen($article);
 		$this->assertEquals(4, $article->getSeen());
