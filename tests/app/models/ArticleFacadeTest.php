@@ -40,12 +40,7 @@ class ArticleFacadeTest extends UnitTestCase
 	public function testIncreaseSeen()
 	{
 		$article = $this->createArticle();
-
-		$article2 = clone $article;
-		$article2->setSeen($article2->getSeen() + 1);
-		//jelikoz predane parametry se v mockistovi hashuji, tak nastane problem, 
-		//pokud se dany objekt mezi prirazenim jako parametrem mockovane metody a samotnym zavolanim metody                
-		$this->repository->persist($article2);
+		$this->repository->persist($article);
 		$this->repository->freeze();
 
 		$this->facade->increaseSeen($article);
